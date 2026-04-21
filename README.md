@@ -2,22 +2,22 @@
 
 灵感来自 [A half-hour to learn Zig](https://gist.github.com/ityonemo/769532c2017ed9143f3571e5ac104e50)。
 
-C3 是自称是C语言的进化版，如果你在同时使用 Java/JavaScript，我觉得你也会接受 C3。
+C3 是一门自称“C 语言的进化版”的编程语言。如果你同时使用过 Java 和 JavaScript，相信你也会很快接受 C3。
 
 ## 基础
 
-- `c3c compile-run code.c3` 命令用于编译并进行单个源码文件
-- `c3c init` 初始化一个项目
+- `c3c compile-run code.c3` 命令用于编译并运行单个源码文件。
+- `c3c init` 用于初始化一个项目。
 
-声明一个 main 函数就可以执行你的代码：
+声明一个 `main` 函数即可让你的代码运行起来：
 
 ```c3
 fn void main() {}
 ```
 
-但是上面代码什么事也做不了。
+不过，上面这段代码什么也做不了。
 
-使用 `import` 语句导入模块，比如实现一个经典的 helloworld：
+使用 `import` 语句导入模块，来实现一个经典的 Hello World：
 
 ```c3
 import std::io;
@@ -28,7 +28,7 @@ fn void main()
 }
 ```
 
-将代码保存为 `code.c3`，使用 `c3c compile-run code.c3` 编译运行，一切正常，你可以看到这样的输出：
+将代码保存为 `code.c3`，执行 `c3c compile-run code.c3` 编译并运行。如果一切正常，你将看到如下输出：
 
 ```sh
 $ c3c compile-run code.c3
@@ -39,7 +39,7 @@ hello, world
 Program completed with exit code 0.
 ```
 
-C3 使用 `int i = 0` 语句声明变量。语法和 C 语言一致。io::printfn 函数也和 printf 一致：
+C3 使用 `int i = 0` 语句声明变量，语法和 C 语言一致。`io::printfn` 函数的用法也类似于 `printf`：
 
 ```c3
 import std::io;
@@ -47,30 +47,30 @@ import std::io;
 fn void main()
 {
   int a = 1;
-  int b = 10
+  int b = 10;
   int c = a + b;
-  io::printfn("%d + %d = %d", a, b, c); // 输出 1 + 2 = 3
+  io::printfn("%d + %d = %d", a, b, c); // 输出：1 + 10 = 11
 }
 ```
 
-注意：C3 中的变量是默认零值初始化！
+注意：C3 中的变量默认会被初始化为零值！
 
 ## 测试
 
-C3 内置了测试框架，可以很简单的地使用：
+C3 内置了测试框架，使用起来非常简单：
 
-```fn
+```c3
 fn void test_fn() @test
 {
     assert(true == true, "true is definitely true");
 }
 ```
 
-执行：`c3c compile-test --test-filter test_fn --test-show-output`。
+执行命令：`c3c compile-test --test-filter test_fn --test-show-output`。
 
 ## 函数
 
-C3 语言的函数声明语法就如何 main 函数一般。有一点需要注意，C3 函数、类型都是默认为 public，就是全部模块可见。函数调用语法和常规的编程语言一致，比如下面的代码：
+C3 函数的声明语法与 `main` 函数相同。有一点需要留意：C3 中的函数和类型默认是 `public` 的，即对全部模块可见。函数调用语法与其他常见编程语言一致，例如：
 
 ```c3
 import std::io;
@@ -85,11 +85,11 @@ fn void main()
   int a = 1;
   int b;
   int c = add(a, b);
-  io::printfn("%d + %d = %d", a, b, c); // 输出 1 + 0 = 1
+  io::printfn("%d + %d = %d", a, b, c); // 输出：1 + 0 = 1
 }
 ```
 
-有一个点需要说明，C3 的函数支持默认参数：
+另外，C3 的函数支持默认参数：
 
 ```c3
 fn int power(int base, int exp = 2)
@@ -100,7 +100,7 @@ fn int power(int base, int exp = 2)
 
 ## 结构体
 
-C3 提供了结构体的语法用于声明复杂对象，而且 C3 的结构体支持方法：
+C3 提供了结构体语法用于声明复合类型，并且结构体还支持定义方法：
 
 ```c3
 import std::io;
@@ -120,7 +120,7 @@ fn void main()
   MyNumber a;
   a.value = 10;
 
-  // 声明变量并同时初始字段的值
+  // 声明变量并同时初始化字段
   MyNumber b = {
     .value = 20,
   };
@@ -140,10 +140,10 @@ enum State : int
     TERMINATED
 }
 
-State current_state = WAITING; // 或者 '= State.WAITING'
+State current_state = WAITING; // 或者写为 '= State.WAITING'
 ```
 
-C3 对 enum 做了几个重要扩展，详情见：[Types](https://c3-lang.org/language-overview/types/#enum) enums 一节
+C3 对 `enum` 做了多项重要扩展，详情可参阅：[Types](https://c3-lang.org/language-overview/types/#enum) 中的 enums 一节。
 
 ## 数组、切片
 
@@ -152,30 +152,30 @@ C3 对 enum 做了几个重要扩展，详情见：[Types](https://c3-lang.org/l
 int[5] a = { 1, 20, 50, 100, 200 };
 
 // 声明切片
-int[] b = a[0 .. 4]; // 整个数组
-int[] c = a[2 .. 3]; // 原数组的一部分
+int[] b = a[0 .. 4]; // 整个数组的视图
+int[] c = a[2 .. 3]; // 数组的一部分视图
 ```
 
-数组是固定长度的有序序列，切片就是数组的一个视图。
+数组是固定长度的有序序列，切片则是数组的一个视图。
 
 ## 字符串
 
-C3 内置了字符串类型 `String`，而且 std 模块也提供了很多常用的字符串方法。
+C3 内置了字符串类型 `String`，同时 `std` 模块也提供了大量常用的字符串处理方法。
 
-`String` 本质是 `typedef String = inline char[]`，在此基础上 C3 还有：
+`String` 本质上是 `typedef String = inline char[]`。在此基础上，C3 还提供了以下相关类型：
 
-- ZString -> `typedef ZString = inline char*`
-- WString -> `typedef WString = inline Char16*`
-- DString -> `typedef DString (OutStream) = void*`，DString 是一种 String builder 实现
+- `ZString` → `typedef ZString = inline char*`
+- `WString` → `typedef WString = inline Char16*`
+- `DString` → `typedef DString (OutStream) = void*`，`DString` 是一种字符串构造器（String builder）实现。
 
-**NOTE:** std 模块有很多实用的字符串方法，参考 std::core::string 模块。
+**提示**：`std` 模块中包含了大量实用的字符串方法，可参考 `std::core::string` 模块。
 
 ## 控制流
 
 **if ... else ...**
 
 ```c3
-fn int to_numer(bool truely)
+fn int to_number(bool truely)
 {
   if (truely)
   {
@@ -193,17 +193,17 @@ fn int to_numer(bool truely)
 ```c3
 switch (a)
 {
-    case 1:       // Empty case implicit fall-through
+    case 1:       // 空 case 会隐式 fall-through
     case 2:
-        doOne();  // Automatic break
+        doOne();  // 自动 break
     case 3:
         i = 0;
-        nextcase; // Explicit fall-through
+        nextcase; // 显式 fall-through
     case 4:
-        doFour(); // Automatic break
+        doFour(); // 自动 break
     case 5:
         doFive();
-        nextcase; // Explicit fall-through
+        nextcase; // 显式 fall-through
     default:
         return false;
 }
@@ -218,7 +218,7 @@ for (int i = 0; i < 10; i++)
 }
 ```
 
-**while/do...while**
+**while / do...while**
 
 ```c3
 int a = 0;
@@ -234,33 +234,32 @@ do
   io::printfn("b is %d", b);
   b++;
 }
-while(b < 10)
+while(b < 10);
 ```
 
-**foreach/foreach_r**
+**foreach / foreach_r**
 
 ```c3
 int[4] arr = { };
 foreach (idx, &item : arr)
 {
-    *item = 7 + (int)idx; // Mutates the array element
-    // index is usz when not specified, requiring an explicit
-    // cast on platforms where usz is larger than int.
-    // 0.8+, "sz" rather than usz is used.
+    *item = 7 + (int)idx; // 修改数组元素
+    // 若不显式指定类型，idx 的类型为 usz，在 usz 大于 int 的平台上需要显式转换。
+    // 从 0.8 版本起，使用 "sz" 而非 "usz"。
 }
 
 foreach_r (idx, item : arr)
 {
-    // Prints 2.0, 1.0
-      io::printfn("item: %s", item);
+    // 按逆序打印：2.0, 1.0, ...
+    io::printfn("item: %s", item);
 }
 ```
 
 ## 错误处理
 
-错误处理主要是依赖“可选结果”（optional results），一可选结果类型可以包含一个值或一个 fault 值。
+错误处理主要依赖“可选结果”（optional results）。一个可选结果类型既可以包含一个正常的值，也可以包含一个 fault 值。
 
-> C3 的可选结果和函数式语言可选值是不同的概念，C3 std::collections::Maybe 类型才等价类型。
+> C3 的“可选结果”与函数式语言中的可选值（Option）概念不同，C3 中的 `std::collections::Maybe` 类型才与之等价。
 
 使用 `faultdef` 关键字声明一个 fault 值：
 
@@ -268,7 +267,7 @@ foreach_r (idx, item : arr)
 faultdef DIVISION_BY_ZERO;
 ```
 
-使用 try 或 catch 进行解包，可以 `!` 再抛出异常，也可以使用 `!!` 强行解包：
+使用 `try` 或 `catch` 进行解包，也可以使用 `!` 向上抛出异常，或使用 `!!` 强制解包：
 
 ```c3
 faultdef DIVISION_BY_ZERO;
@@ -286,10 +285,10 @@ fn void? test_may_fail()
 
 fn void main()
 {
-    // ratio is an optional result.
+    // ratio 是一个可选结果
     double? ratio = divide(foo(), bar());
 
-    // Handle the optional result value if it exists.
+    // 如果存在错误值，则处理它
     if (catch err = ratio)
     {
         switch (err)
@@ -302,13 +301,13 @@ fn void main()
                 return;
         }
     }
-    // Flow typing makes "ratio"
-    // have the plain type 'double' here.
+    // 根据流类型推断（flow typing），此处的 ratio
+    // 已被确定为普通类型 'double'。
     io::printfn("Ratio was %f", ratio);
 }
 ```
 
-另外也可以使用 `??` 指定默认值：
+此外，还可以使用 `??` 指定默认值：
 
 ```c3
 faultdef SOME_ERROR;
@@ -326,41 +325,40 @@ fn void? example()
 }
 ```
 
-C3 对 optional result 类型做了很多易用性优化，建议参考官方文档：
+C3 对可选结果类型做了大量易用性优化，建议进一步阅读官方文档：
 
 - [Essential Error Handling](https://c3-lang.org/language-common/optionals-essential/)
 - [Advanced Error Handling](https://c3-lang.org/language-common/optionals-advanced/)
 
 ## 指针
 
-C3 的指针和 C 几乎一致：
+C3 的指针与 C 语言几乎一致：
 
-- `Foo*` 是 Foo 的指针类型
-- 使用 `&` 运算符取出对象的地址值
-- 使用 `*ptr` 取出指针的指向的值
+- `Foo*` 表示指向 `Foo` 类型的指针。
+- 使用 `&` 运算符获取对象的地址。
+- 使用 `*ptr` 解引用指针。
 
-C3 也支持函数指针：
+C3 同样支持函数指针：
 
 ```c3
-alias Callback = fn void(int value)
+alias Callback = fn void(int value);
 Callback callback = &test;
 
 fn void test(int a) { /* ... */ }
 ```
 
-> C3 里函数声明的语法也可能是受到函数指针的影响。
+> 事实上，C3 函数声明的语法也多少受到了函数指针语法的影响。
 
 ## 内存管理
 
-**C3 是一门手工管理内存**的编程语言，但是 C3 提供了几个优化可以大大减轻心智压力：
+**C3 是一门需要手动管理内存**的编程语言，但它提供了一些特性，可以大幅减轻心智负担。
 
-C3 默认使用栈内存，比如在函数中声明一个数据，默认使用栈内存。如果是创建大对象时，可以使用堆内存。C3 提供了两个堆内存分配器：`mem` 和 `tmem`。
+C3 默认使用栈内存。在函数中声明的变量通常分配在栈上。如果需要创建较大的对象，可以使用堆内存。C3 提供了两种堆内存分配器：`mem` 和 `tmem`。
 
-mem 内存分配器可以在堆上创建一块区域用于储存数据。使用 mem 分配的内存需要使用 mem::free 等方式显式释放。
+- `mem` 分配器在堆上分配内存区域用于存储数据。通过 `mem` 分配的内存需要使用 `mem::free` 等方式显式释放。
+- `tmem` 是一个临时内存分配器。在 `@pool` 作用域结束时，由 `tmem` 分配的内存会被自动释放。可以把 `@pool` 理解为一个内存池，`tmem` 会自动向上查找最近的 `@pool`。借助这个特性，可以大大减少手动管理内存的工作量。
 
-tmem 则是一个临时内存分配器。tmem 会 @pool 作用域结束时自动释放由 tmem 分配的内存。@pool 可以认为是一个内存池，在 @pool 退出作用域时，自动释放 tmem 分配的内存。tmem 会自动向上查找最近的 @pool。借助这个特性，C3 代码可以大大减少手工管理内存的压力。
-
-C3 也提供一个基于作用域的 defer 功能，可以用于简化资源管理。
+C3 还提供了基于作用域的 `defer` 语句，可用于简化资源管理。
 
 ```c3
 import std::io;
@@ -377,16 +375,15 @@ fn void main()
 {
   String str = replace_aaa_to_bbb(mem, "aaa");
   defer mem::free(str);
-  io::printfn("result is %s", str); // result is bbb
+  io::printfn("result is %s", str); // 输出：result is bbb
 }
 ```
 
+## 宏、编译期求值与泛型
 
-## 宏、编译期运行、泛型
+C3 支持编译期求值、基于编译期的反射，也支持泛型。
 
-C3 支持编译期运行和基于编译期的反应，并且支持泛型。
-
-这部分内容本文不展开，参考官方文档：
+这部分内容在本文中不展开，请参考官方文档：
 
 - [Compile Time Evaluation](https://c3-lang.org/generic-programming/compiletime/)
 - [Generics](https://c3-lang.org/generic-programming/generics/)
@@ -394,10 +391,12 @@ C3 支持编译期运行和基于编译期的反应，并且支持泛型。
 
 ## 其他
 
-C3 还有很多有趣的特性，比如：
+C3 还有许多有趣的特性，例如：
 
 - bitstruct
 - 有限制的重载
 - 特质（Attributes）
 - 契约（Contracts）
 - 向量
+
+更多内容，请参考 C3 语言官网：[https://c3-lang.org/](https://c3-lang.org/)
