@@ -2,12 +2,16 @@
 
 灵感来自 [A half-hour to learn Zig](https://gist.github.com/ityonemo/769532c2017ed9143f3571e5ac104e50)。
 
-C3 是一门自称“C 语言的进化版”的编程语言。如果你同时使用过 Java 和 JavaScript，相信你也会很快接受 C3。
+C3 是一门自称“C 语言的进化版”的编程语言。如果你和一样，同时使用 Java 和 JavaScript，相信你也会很快接受 C3。
+
+本文是针对 **c3c 0.8** 编写。
 
 ## 基础
 
 - `c3c compile-run code.c3` 命令用于编译并运行单个源码文件。
 - `c3c init` 用于初始化一个项目。
+
+> c3c 是 C3 语言目前唯一的编译器实现，安装请参考 [Install C3 Compiler Binary](https://c3-lang.org/getting-started/prebuilt-binaries/)。
 
 声明一个 `main` 函数即可让你的代码运行起来：
 
@@ -53,7 +57,7 @@ fn void main()
 }
 ```
 
-注意：C3 中的变量默认会被初始化为零值！
+> 🔰  **重要**：C3 中的变量默认会被初始化为零值！这意味着即使你不显式赋值，变量也会有一个确定的初始值（例如 `int` 为 `0`，`bool` 为 `false`）。这个特性也适用于结构体的字段以及函数的默认参数，有助于避免未初始化内存带来的问题。
 
 ## 测试
 
@@ -68,9 +72,17 @@ fn void test_fn() @test
 
 执行命令：`c3c compile-test --test-filter test_fn --test-show-output`。
 
+> 💡 **提示**：在实际项目中，测试函数通常放在独立的测试文件（如 `*_test.c3`）中，而不是与被测代码混在一起。
+
 ## 函数
 
-C3 函数的声明语法与 `main` 函数相同。有一点需要留意：C3 中的函数和类型默认是 `public` 的，即对全部模块可见。函数调用语法与其他常见编程语言一致，例如：
+C3 函数的声明语法与 `main` 函数相同。有一点需要留意：C3 中的函数和类型默认是 `public` 的，即对**同一模块内的其他文件**以及**导入该模块的外部模块**均可见。如果希望仅在当前文件内使用，可以在前面加上 `@private` 属性：
+
+```c3
+@private fn int internal_helper() { ... }
+```
+
+函数调用语法与其他常见编程语言一致，例如：
 
 ```c3
 import std::io;
@@ -83,13 +95,13 @@ fn int add(int a, int b)
 fn void main()
 {
   int a = 1;
-  int b;
+  int b;          // b 自动初始化为 0
   int c = add(a, b);
   io::printfn("%d + %d = %d", a, b, c); // 输出：1 + 0 = 1
 }
 ```
 
-另外，C3 的函数支持默认参数：
+另外，C3 的函数支持默认参数（未传入的实参同样会自动初始化为零值）：
 
 ```c3
 fn int power(int base, int exp = 2)
@@ -151,12 +163,12 @@ C3 对 `enum` 做了多项重要扩展，详情可参阅：[Types](https://c3-la
 // 声明数组
 int[5] a = { 1, 20, 50, 100, 200 };
 
-// 声明切片
-int[] b = a[0 .. 4]; // 整个数组的视图
-int[] c = a[2 .. 3]; // 数组的一部分视图
+// 声明切片（注意：C3 的切片范围是包含终点的）
+int[] b = a[0 .. 4]; // 包含 a[0] 到 a[4]，共 5 个元素
+int[] c = a[2 .. 3]; // 包含 a[2] 和 a[3]，共 2 个元素
 ```
 
-数组是固定长度的有序序列，切片则是数组的一个视图。
+数组是固定长度的有序序列，切片则是数组的一个视图。与许多其他语言不同，**C3 的切片范围 `[start .. end]` 是包含 `end` 元素的**，这点在使用时需要特别留意。
 
 ## 字符串
 
@@ -190,6 +202,8 @@ fn int to_number(bool truely)
 
 **switch**
 
+`switch` 语句默认每个非空 `case` 都会自动 `break`，不会再出现 C 语言中常见的“忘记写 `break` 导致意外贯穿”的问题。如果需要显式贯穿，使用 `nextcase` 关键字。而空的 `case` 块则会遵循传统 C 的隐式 fall-through 行为，用于多个 `case` 共享同一段代码。
+
 ```c3
 switch (a)
 {
@@ -198,12 +212,12 @@ switch (a)
         doOne();  // 自动 break
     case 3:
         i = 0;
-        nextcase; // 显式 fall-through
+        nextcase; // 显式 fall-through，贯穿到 case 4
     case 4:
         doFour(); // 自动 break
     case 5:
         doFive();
-        nextcase; // 显式 fall-through
+        nextcase; // 显式 fall-through，贯穿到 default
     default:
         return false;
 }
@@ -243,7 +257,7 @@ while(b < 10);
 int[4] arr = { };
 foreach (idx, &item : arr)
 {
-    *item = 7 + (int)idx; // 修改数组元素
+    *item = 7 + (int)idx; // 通过指针直接修改数组元素
     // 若不显式指定类型，idx 的类型为 usz，在 usz 大于 int 的平台上需要显式转换。
     // 从 0.8 版本起，使用 "sz" 而非 "usz"。
 }
@@ -255,11 +269,13 @@ foreach_r (idx, item : arr)
 }
 ```
 
+> 💡 **注意**：`foreach` 中如果使用 `&item` 获取元素的引用，通过 `*item` 修改会直接作用于原数组。如果省略 `&`，`item` 则是元素的副本，修改不会影响原数组。
+
 ## 错误处理
 
-错误处理主要依赖“可选结果”（optional results）。一个可选结果类型既可以包含一个正常的值，也可以包含一个 fault 值。
+错误处理主要依赖"可选结果"（optional results）。一个可选结果类型既可以包含一个正常的值，也可以包含一个 fault 值。
 
-> C3 的“可选结果”与函数式语言中的可选值（Option）概念不同，C3 中的 `std::collections::Maybe` 类型才与之等价。
+> C3 的"可选结果"与函数式语言中的可选值（Option）概念不同，C3 中的 `std::collections::Maybe` 类型才与之等价。
 
 使用 `faultdef` 关键字声明一个 fault 值：
 
@@ -320,7 +336,7 @@ fn int? test()
 fn void? example()
 {
   int? a = test();
-  int b = a ?? 0;
+  int b = a ?? 0;  // 如果 a 包含错误，则 b 取默认值 0
   // ...
 }
 ```
@@ -369,12 +385,13 @@ fn String replace_aaa_to_bbb(Allocator allocator, String str)
     String result = str.replace(tmem, "a", "b");
     return result.copy(allocator);
   };
+  // @pool 作用域结束，tmem 分配的临时内存在此自动释放
 }
 
 fn void main()
 {
   String str = replace_aaa_to_bbb(mem, "aaa");
-  defer mem::free(str);
+  defer mem::free(str);  // 确保函数返回前释放内存
   io::printfn("result is %s", str); // 输出：result is bbb
 }
 ```
