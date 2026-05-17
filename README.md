@@ -57,16 +57,24 @@ fn void main()
 }
 ```
 
-> 🔰  **重要**：C3 中的变量默认会被初始化为零值！这意味着即使你不显式赋值，变量也会有一个确定的初始值（例如 `int` 为 `0`，`bool` 为 `false`）。这个特性也适用于结构体的字段以及函数的默认参数，有助于避免未初始化内存带来的问题。
+> 🔰 **重要**：C3 中的变量默认会被初始化为零值！这意味着即使你不显式赋值，变量也会有一个确定的初始值（例如 `int` 为 `0`，`bool` 为 `false`）。这个特性也适用于结构体的字段以及函数的默认参数，有助于避免未初始化内存带来的问题。
 
 ## 测试
 
 C3 内置了测试框架，使用起来非常简单：
 
 ```c3
+faultdef DIVISION_BY_ZERO;
+
+fn double? divide(int a, int b)
+{
+    if (b == 0) return DIVISION_BY_ZERO~;
+    return (double)(a) / (double)(b);
+}
+
 fn void test_fn() @test
 {
-    assert(true == true, "true is definitely true");
+    test::@check(2 == 2, "divide: %d", divide(6, 3)!!);
 }
 ```
 
@@ -79,7 +87,10 @@ fn void test_fn() @test
 C3 函数的声明语法与 `main` 函数相同。有一点需要留意：C3 中的函数和类型默认是 `public` 的，即对**同一模块内的其他文件**以及**导入该模块的外部模块**均可见。如果希望仅在当前文件内使用，可以在前面加上 `@private` 属性：
 
 ```c3
-@private fn int internal_helper() { ... }
+fn int internal_helper() @private
+{
+    //...
+}
 ```
 
 函数调用语法与其他常见编程语言一致，例如：
@@ -89,15 +100,15 @@ import std::io;
 
 fn int add(int a, int b)
 {
-  return a + b;
+    return a + b;
 }
 
 fn void main()
 {
-  int a = 1;
-  int b;          // b 自动初始化为 0
-  int c = add(a, b);
-  io::printfn("%d + %d = %d", a, b, c); // 输出：1 + 0 = 1
+    int a = 1;
+    int b;          // b 自动初始化为 0
+    int c = add(a, b);
+    io::printfn("%d + %d = %d", a, b, c); // 输出：1 + 0 = 1
 }
 ```
 
@@ -106,7 +117,7 @@ fn void main()
 ```c3
 fn int power(int base, int exp = 2)
 {
-  // ..
+    // ..
 }
 ```
 
@@ -119,26 +130,26 @@ import std::io;
 
 struct MyNumber
 {
-  int value;
+    int value;
 }
 
 fn int MyNumber.add(self, MyNumber b) // 声明 MyNumber.add 方法
 {
-  return self.value + b.value;
+    return self.value + b.value;
 }
 
 fn void main()
 {
-  MyNumber a;
-  a.value = 10;
+    MyNumber a;
+    a.value = 10;
 
-  // 声明变量并同时初始化字段
-  MyNumber b = {
-    .value = 20,
-  };
+    // 声明变量并同时初始化字段
+    MyNumber b = {
+      .value = 20,
+    };
 
-  int result = a.add(b);
-  io::printfn("a + b is %d", result); // 输出：a + b is 30
+    int result = a.add(b);
+    io::printfn("a + b is %d", result); // 输出：a + b is 30
 }
 ```
 
@@ -169,6 +180,8 @@ int[] c = a[2 .. 3]; // 包含 a[2] 和 a[3]，共 2 个元素
 ```
 
 数组是固定长度的有序序列，切片则是数组的一个视图。与许多其他语言不同，**C3 的切片范围 `[start .. end]` 是包含 `end` 元素的**，这点在使用时需要特别留意。
+
+切片还支持 `arr[<start-index> : <slice-length>]`，`arr[<start-index>..]`，`arr[..<end-index>]` 写法，更多可以参考 [Slice](https://c3-lang.org/language-common/arrays/#slice)。
 
 ## 字符串
 
@@ -354,7 +367,7 @@ C3 的指针与 C 语言几乎一致：
 - 使用 `&` 运算符获取对象的地址。
 - 使用 `*ptr` 解引用指针。
 
-C3 同样支持函数指针：
+C3 支持函数指针：
 
 ```c3
 alias Callback = fn void(int value);
